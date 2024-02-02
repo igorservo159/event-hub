@@ -37,7 +37,7 @@ Route::post('/registrations/{event}', [RegistrationController::class, 'store'])
     ->name('registrations.store')
     ->middleware(['auth', 'verified']);
 
-Route::post('/registrations/approvePayment/{event}', [RegistrationController::class, 'approvePayment'])
+Route::post('/registrations/approvePayment/{registration}', [RegistrationController::class, 'approvePayment'])
     ->name('registrations.approvePayment')
     ->middleware(['auth', 'verified']);
     

@@ -15,6 +15,8 @@ class Payment extends Model
         'value',
         'method',
         'status',
+        'registration_id',
+        'user_id',
     ];
 
     public function registration(): BelongsTo {

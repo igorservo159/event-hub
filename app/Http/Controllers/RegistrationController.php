@@ -85,13 +85,6 @@ class RegistrationController extends Controller
         }
 
         $registrations = $event->registrations;
-        $registration = $event->registrations->first();
-
-        if($registration->event == null){
-            return view('dashboard');
-        }
-
-        dd($registration->event->toArray());
         $paidCount = $registrations->where('status', 'pago')->count();
         $pendingCount = $registrations->where('status', 'pendente')->count();
         $processingCount = $registrations->where('status', 'processando pagamento')->count();
@@ -102,7 +95,6 @@ class RegistrationController extends Controller
 
     public function approvePayment(Registration $registration): RedirectResponse
     {
-        
         if (Auth::user()->id !== $registration->event->owner->id) {
             return redirect()->route('dashboard')
                 ->with('error', 'Você não tem permissão para aprovar o pagamento desta inscrição.');
@@ -114,7 +106,11 @@ class RegistrationController extends Controller
         }
 
         $registration->update(['status' => 'pago']);
-
+        
+        $payment = $registration->payments()->where('status', 'pendente')->first();
+        if ($payment) {
+            $payment->update(['status' => 'finalizado']);
+        }
         return redirect()->route('registrations.index')
             ->with('success', 'Pagamento aprovado com sucesso!');
     }
