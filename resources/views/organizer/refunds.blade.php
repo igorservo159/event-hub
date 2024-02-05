@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Pedidos de Reembolsos') }}
+            {{ __('Pedidos de reembolsos do evento: ') }} {{$event->title}}
         </h2>
     </x-slot>
 
@@ -9,8 +9,8 @@
         <div class="mb-6">
             <form action="{{ route('refunds.listRefunds', $event) }}" method="get" class="bg-white p-6 rounded-lg shadow-md">
                 <div class="mb-4">
-                    <label for="title_filter" class="block text-gray-600 text-sm font-medium mb-2">Título do Evento:</label>
-                    <input type="text" name="title_filter" id="title_filter" class="w-full border-gray-300 rounded-md p-2">
+                    <label for="name_filter" class="block text-gray-600 text-sm font-medium mb-2">Nome do usuário:</label>
+                    <input type="text" name="name_filter" id="name_filter" class="w-full border-gray-300 rounded-md p-2">
                 </div>
 
                 <div class="flex justify-between">
@@ -26,7 +26,7 @@
                     <div class="flex space-x-2">
                         <div class="flex-1">
                             <div class="flex justify-between px-6 pt-6 pb-3">
-                                <h2 class="break-words max-w-lg text-xl font-semibold mb-2">{{ $refund->payment->registration->event->title }} - {{$refund->user->name}}</h2>
+                                <h2 class="break-words max-w-lg text-xl font-semibold mb-2">{{$refund->user->name}}</h2>
                                 <div>
                                     <p class="text-md text-gray-800">{{ __('Decisão: :decisao', ['decisao' => $refund->decisao]) }}</p>
                                 </div>

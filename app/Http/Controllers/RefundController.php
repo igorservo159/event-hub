@@ -130,7 +130,7 @@ class RefundController extends Controller
                 ->with('error', 'Você não tem permissão para acessar estas inscrições.');
         }
 
-        $titleFilter = $request->input('title_filter');
+        $nameFilter = $request->input('name_filter');
 
         $registrations = $event->registrations;
 
@@ -140,14 +140,15 @@ class RefundController extends Controller
             $refunds = $refunds->merge($registration->payments->flatMap->refunds);
         }
 
-        if ($titleFilter) {
-            $refunds = $refunds->filter(function ($refund) use ($titleFilter) {
-                return str_contains(strtolower($refund->payment->registration->event->title), strtolower($titleFilter));
+        if ($nameFilter) {
+            $refunds = $refunds->filter(function ($refund) use ($nameFilter) {
+                return str_contains(strtolower($refund->payment->registration->user->name), strtolower($nameFilter));
             });
         }
 
         return view('organizer.refunds', compact('event', 'refunds'));
     }
+
 
     public function askForRefund(Registration $registration)
     {

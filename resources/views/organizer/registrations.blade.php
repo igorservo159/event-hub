@@ -19,7 +19,7 @@
                         <p>{{ $cancelCount }} inscrições canceladas</p>
                     </div>
                     <div>
-                        <a href="{{ route('refunds.listRefunds', $event) }}">Checar Reembolsos</a>
+                        <a class="hover:underline" href="{{ route('refunds.listRefunds', $event) }}">Checar Reembolsos</a>
                     </div>
                 </div>
                 <div class="mb-3">
