@@ -24,14 +24,12 @@ class RegistrationController extends Controller
             ->latest();
 
         if ($titleFilter && !$registrationId) {
-            // Apenas aplicar o filtro de título se não houver filtro de registrationId
             $query->whereHas('event', function ($eventQuery) use ($titleFilter) {
                 $eventQuery->where('title', 'like', '%' . $titleFilter . '%');
             });
         }
     
         if ($registrationId) {
-            // Se houver um filtro de registrationId, obter o nome do evento correspondente
             $eventTitle = Registration::find($registrationId)->event->title ?? '';
             $titleFilter = $eventTitle;
             $query->where('id', $registrationId);
@@ -47,7 +45,7 @@ class RegistrationController extends Controller
         $user = Auth::user();
 
         /** @var \App\Models\User $user */
-        if (!$user->isEnrolled($event) && $event->hasAvailableSlots()) {
+        if (!$user->hasActiveEnrollment($event) && $event->hasAvailableSlots()) {
             $event->registrations()->create(['user_id' => $user->id]);
 
             return redirect()->route('events.show', $event)
@@ -60,16 +58,25 @@ class RegistrationController extends Controller
 
     public function destroy(Registration $registration): RedirectResponse
     {
-        if (Auth::user()->id === $registration->user_id) {
+        if(Auth::user()->id === $registration->user_id) {
             if($registration->status == 'pendente'){
                 $event = $registration->event;
-                $registration->delete();
+                $registration->update(['status' => 'cancelada']);
 
                 return redirect()->route('events.show', $event)
                     ->with('success', 'Inscrição removida com sucesso.');
             }
-            elseif($registration->status == 'processando pagamento' || $registration->status == 'pago'){
-                return redirect()->route('payments.reembolso', $registration);
+            elseif($registration->status == 'processando pagamento'){
+                $payment = $registration->payments();
+                $payment->delete();
+                $event = $registration->event;
+                $registration->update(['status' => 'cancelada']);
+
+                return redirect()->route('events.show', $event)
+                    ->with('success', 'Inscrição removida com sucesso.');
+            }
+            elseif($registration->status == 'pago'){
+                return redirect()->route('refunds.askForRefund', $registration);
             }
         } else {
             return redirect()->route('registrations.index')
@@ -77,41 +84,39 @@ class RegistrationController extends Controller
         }
     }
 
-    public function registeredsList(Event $event)
+    public function listRegisters(Request $request, Event $event)
     {
         if (Auth::user()->id !== $event->owner->id) {
             return redirect()->route('dashboard')
                 ->with('error', 'Você não tem permissão para acessar estas inscrições.');
         }
 
-        $registrations = $event->registrations;
+        $nameFilter = $request->input('user_name');
+        $statusFilter = $request->input('status_filter');
+
+        $registrationsQuery = $event->registrations();
+
+        if ($nameFilter) {
+            $registrationsQuery->whereHas('user', function ($userQuery) use ($nameFilter) {
+                $userQuery->where('name', 'like', '%' . $nameFilter . '%');
+            });
+        }
+        if ($statusFilter) {
+            $registrationsQuery->where('status', $statusFilter);
+        }
+
+        $registrations = $event->registrations;;
+        
         $paidCount = $registrations->where('status', 'pago')->count();
         $pendingCount = $registrations->where('status', 'pendente')->count();
         $processingCount = $registrations->where('status', 'processando pagamento')->count();
+        $waitingCount = $registrations->where('status', 'esperando por reembolso')->count();
+        $cancelCount = $registrations->where('status', 'cancelada')->count();
 
-        return view('organizer.registrations', compact('event', 'registrations', 'paidCount', 'pendingCount', 'processingCount'));
-    
-    }
-
-    public function approvePayment(Registration $registration): RedirectResponse
-    {
-        if (Auth::user()->id !== $registration->event->owner->id) {
-            return redirect()->route('dashboard')
-                ->with('error', 'Você não tem permissão para aprovar o pagamento desta inscrição.');
+        if ($registrationsQuery->count()){
+            $registrations = $registrationsQuery->get();
         }
 
-        if ($registration->status !== 'processando pagamento') {
-            return redirect()->route('registrations.index')
-                ->with('error', 'Esta inscrição não está aguardando pagamento.');
-        }
-
-        $registration->update(['status' => 'pago']);
-        
-        $payment = $registration->payments()->where('status', 'pendente')->first();
-        if ($payment) {
-            $payment->update(['status' => 'finalizado']);
-        }
-        return redirect()->route('registrations.index')
-            ->with('success', 'Pagamento aprovado com sucesso!');
+        return view('organizer.registrations', compact('event', 'registrations', 'paidCount', 'pendingCount', 'processingCount', 'waitingCount', 'cancelCount'));
     }
 }

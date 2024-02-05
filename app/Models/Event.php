@@ -35,6 +35,6 @@ class Event extends Model
 
     public function hasAvailableSlots(): bool
     {
-        return $this->registrations->count() < $this->capacity;
+        return $this->registrations()->where('status', '!=', 'cancelada')->count() < $this->capacity;
     }
 }

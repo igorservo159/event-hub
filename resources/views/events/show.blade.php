@@ -23,7 +23,7 @@
                 </div>
                 <div class="flex justify-between mx-3">
 
-                    @if(Auth::user()->isEnrolled($event))
+                    @if(Auth::user()->hasActiveEnrollment($event))
                         <p class="text-green-500 mt-4">{{ __('Você já está inscrito neste evento.') }}</p>
                     @else
                         <form action="{{ route('registrations.store', $event) }}" method="post" class="mt-4">

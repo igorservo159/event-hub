@@ -53,6 +53,10 @@ class User extends Authenticatable
         return $this->hasMany(Payment::class, 'user_id', 'id');
     }
 
+    public function refunds(): HasMany {
+        return $this->hasMany(Refund::class, 'user_id', 'id');
+    }
+
     public function createdEvents(): HasMany {
         return $this->hasMany(Event::class, 'owner_id', 'id');
     }
@@ -74,5 +78,13 @@ class User extends Authenticatable
 
     public function isAdmin(): bool {
         return $this->type === 'administrador';
+    }
+
+    public function hasActiveEnrollment(Event $event): bool
+    {
+        return $this->registrations()
+            ->where('event_id', $event->id)
+            ->whereNotIn('status', ['cancelada'])
+            ->exists();
     }
 }

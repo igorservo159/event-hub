@@ -40,6 +40,10 @@
                     <x-nav-link :href="route('payments.index')" :active="request()->routeIs('payments.index')">
                         {{ __('Meus pagamentos') }}
                     </x-nav-link>
+
+                    <x-nav-link :href="route('refunds.index')" :active="request()->routeIs('refunds.index')">
+                        {{ __('Meus Pedidos de Reembolso') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -119,6 +123,10 @@
 
             <x-responsive-nav-link :href="route('payments.index')" :active="request()->routeIs('payments.index')">
                 {{ __('Meus pagamentos') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('refunds.index')" :active="request()->routeIs('refunds.index')">
+                {{ __('Meus Pedidos de Reembolso') }}
             </x-responsive-nav-link>
         </div>
 

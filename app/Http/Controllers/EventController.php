@@ -97,7 +97,8 @@ class EventController extends Controller
      */
     public function edit(Event $event): View
     {
-        return view('events.edit', compact('event'));
+        $registrationsWithPayment = $event->registrations->whereIn('status', ['pago', 'processando pagamento'])->isNotEmpty();
+        return view('events.edit', compact('event', 'registrationsWithPayment'));
     }
 
     /**

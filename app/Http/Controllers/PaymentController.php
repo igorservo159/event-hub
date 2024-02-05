@@ -6,9 +6,7 @@ use App\Models\Payment;
 use App\Models\Registration;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redis;
 
 class PaymentController extends Controller
 {
@@ -118,25 +116,28 @@ class PaymentController extends Controller
             ->with('success', 'Pagamento excluído com sucesso!');
     }
 
-    public function reembolso(Registration $registration)
+    public function approvePayment(Registration $registration): RedirectResponse
     {
-        $payment = $registration->payments();
-        if($registration->status == 'processando pagamento'){
-            $payment->delete();
-            $registration->update(['status' => 'pendente']);
-            return redirect()->route('registrations.destroy', $registration);
+        $event = $registration->event;
+
+        if (Auth::user()->id !== $registration->event->owner->id) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Você não tem permissão para aprovar o pagamento desta inscrição.');
         }
-        elseif($registration->status == 'pago'){
-            $diasRestantes = Carbon::parse($registration->event->data)->diffInDays(Carbon::now());
-            if($diasRestantes >= 15){
-                $payment->delete();
-                $registration->update(['status' => 'pendente']);
-                return redirect()->route('registrations.destroy', $registration);
-            }
-            else{
-                return redirect()->route('registrations.index')
-                    ->with('error', 'Já passou do prazo de reembolso');
-            }
+
+        if ($registration->status !== 'processando pagamento') {
+            return redirect()->route('registrations.listRegisters', $event)
+                ->with('error', 'Esta inscrição não está aguardando pagamento.');
         }
+        
+        $payment = $registration->payments()->where('status', 'processando')->first();
+        if ($payment) {
+            $payment->update(['status' => 'finalizado']);
+            $registration->update(['status' => 'pago']);
+        }
+        return redirect()->route('registrations.listRegisters', $event)
+            ->with('success', 'Pagamento aprovado com sucesso!');
     }
+
+    
 }

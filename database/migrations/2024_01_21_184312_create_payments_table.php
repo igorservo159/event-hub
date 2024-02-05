@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->decimal('value', 8, 2);
             $table->enum('method', ['pix', 'credito', 'debito', 'boleto']);
-            $table->string('status')->default('pendente');
+            $table->enum('status', ['processando', 'finalizado'])->default('processando');
             $table->foreignId('registration_id')->constrained('registrations')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();

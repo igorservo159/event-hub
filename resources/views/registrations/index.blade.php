@@ -25,7 +25,13 @@
                 <div class="flex space-x-2">
                     <div class="flex-1">
                         <div class="flex justify-between px-6 pt-6 pb-3">                
-                            <h2 class="break-words max-w-lg text-xl font-semibold mb-2">{{ $registration->event->title }}</h2>
+                            <h2 class="break-words max-w-lg text-xl font-semibold mb-2">
+                                @if($registration->status === "cancelada")
+                                    <span class="text-red-500">{{ $registration->event->title }} (Você cancelou sua inscrição)</span>
+                                @else
+                                    {{ $registration->event->title }}
+                                @endif
+                            </h2>
                             <div>
                                 <x-dropdown>
                                     <x-slot name="trigger">
@@ -36,18 +42,21 @@
                                         </button>
                                     </x-slot>
                                     <x-slot name="content">
-                                        @if($registration->status == "pendente")
+                                        @if($registration->status == "pendente" && $registration->status !== "cancelada")
                                             <x-dropdown-link :href="route('payments.create', $registration)">
                                                 {{ __('Realizar pagamento') }}
                                             </x-dropdown-link>
                                         @endif
-                                        <form method="POST" action="{{ route('registrations.destroy', $registration) }}">
-                                            @csrf
-                                            @method('delete')
-                                            <x-dropdown-link :href="route('registrations.destroy', $registration)" onclick="event.preventDefault(); this.closest('form').submit();">
-                                                {{ __('Cancelar inscrição') }}
-                                            </x-dropdown-link>
-                                        </form>
+                                        @if($registration->status != "esperando por reembolso" && $registration->status !== "cancelada")
+                                            <form method="POST" action="{{ route('registrations.destroy', $registration) }}">
+                                                @csrf
+                                                @method('delete')
+                                                <x-dropdown-link :href="route('registrations.destroy', $registration)" onclick="event.preventDefault(); this.closest('form').submit();">
+                                                    @if($registration->status == "pago"){{ __('Cancelar inscrição e pedir reembolso') }}
+                                                    @else{{ __('Cancelar inscrição') }}@endif
+                                                </x-dropdown-link>
+                                            </form>
+                                        @endif
                                     </x-slot>
                                 </x-dropdown>
                             </div>
@@ -67,6 +76,7 @@
                 </div>
             </div>
         @endforeach
+
 
         @if($registrations->isEmpty())
             <p class="text-center text-gray-500">{{ __('Você ainda não se inscreveu em nenhum evento.') }}</p>

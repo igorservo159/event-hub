@@ -4,6 +4,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RefundController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,19 +29,15 @@ Route::get('/dashboard', function () {
 Route::get('/events/myEvents', [EventController::class, 'myEvents'])
     ->name('events.myEvents')
     ->middleware(['auth', 'verified']);
-    
-Route::get('/registrations/{event}', [RegistrationController::class, 'registeredsList'])
-    ->name('registrations.registeredsList')
-    ->middleware(['auth', 'verified']);
 
 Route::post('/registrations/{event}', [RegistrationController::class, 'store'])
     ->name('registrations.store')
     ->middleware(['auth', 'verified']);
-
-Route::post('/registrations/approvePayment/{registration}', [RegistrationController::class, 'approvePayment'])
-    ->name('registrations.approvePayment')
-    ->middleware(['auth', 'verified']);
     
+Route::get('/registrations/listRegisters/{event}', [RegistrationController::class, 'listRegisters'])
+    ->name('registrations.listRegisters')
+    ->middleware(['auth', 'verified']);
+
 Route::get('/payments/{registration}', [PaymentController::class, 'create'])
     ->name('payments.create')
     ->middleware(['auth', 'verified']);
@@ -49,8 +46,28 @@ Route::post('/payments/{registration}', [PaymentController::class, 'store'])
     ->name('payments.store')
     ->middleware(['auth', 'verified']);
 
-Route::match(['get', 'post'], '/payments/reembolso/{registration}', [PaymentController::class, 'reembolso'])
-    ->name('payments.reembolso')
+Route::post('/payments/approvePayment/{registration}', [PaymentController::class, 'approvePayment'])
+    ->name('payments.approvePayment')
+    ->middleware(['auth', 'verified']);
+
+Route::post('/refunds/{registration}', [RefundController::class, 'store'])
+    ->name('refunds.store')
+    ->middleware(['auth', 'verified']);
+
+Route::get('/refunds/listRefunds/{event}', [RefundController::class, 'listRefunds'])
+    ->name('refunds.listRefunds')
+    ->middleware(['auth', 'verified']);
+    
+Route::match(['get', 'post'], '/refunds/askForRefund/{registration}', [RefundController::class, 'askForRefund'])
+    ->name('refunds.askForRefund')
+    ->middleware(['auth', 'verified']);
+
+Route::post('/refunds/approveRefund/{refund}', [RefundController::class, 'approveRefund'])
+    ->name('refunds.approveRefund')
+    ->middleware(['auth', 'verified']);
+
+Route::post('/refunds/denyRefund/{refund}', [RefundController::class, 'denyRefund'])
+    ->name('refunds.denyRefund')
     ->middleware(['auth', 'verified']);
 
 Route::resource('events', EventController::class)
@@ -63,6 +80,10 @@ Route::resource('registrations', RegistrationController::class)
 
 Route::resource('payments', PaymentController::class)
     ->only(['index','destroy'])
+    ->middleware(['auth', 'verified']);
+
+Route::resource('refunds', RefundController::class)
+    ->only(['index', 'show', 'destroy'])
     ->middleware(['auth', 'verified']);
 
 Route::middleware('auth')->group(function () {

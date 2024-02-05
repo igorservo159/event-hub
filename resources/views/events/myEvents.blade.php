@@ -49,7 +49,7 @@
                                         <x-dropdown-link :href="route('events.edit', $event)">
                                             {{ __('Editar evento') }}
                                         </x-dropdown-link>
-                                        <x-dropdown-link :href="route('registrations.registeredsList', $event)">
+                                        <x-dropdown-link :href="route('registrations.listRegisters', $event)">
                                             {{ __('Listar inscrições') }}
                                         </x-dropdown-link>
                                         <form method="POST" action="{{ route('events.destroy', $event) }}">

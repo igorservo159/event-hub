@@ -40,10 +40,15 @@
                         <label for="capacity" class="block text-gray-600 text-sm font-medium mb-2">Capacidade:</label>
                         <input type="number" name="capacity" id="capacity" value="{{ old('capacity', $event->capacity) }}" class="w-full border-gray-300 rounded-md p-2">
                     </div>
-
+                    
                     <div class="mb-4">
                         <label for="price" class="block text-gray-600 text-sm font-medium mb-2">Preço:</label>
-                        <input type="number" step="0.01" name="price" id="price" value="{{ old('price', $event->price) }}" class="w-full border-gray-300 rounded-md p-2">
+                        @if($registrationsWithPayment)
+                            <input type="number" step="0.01" name="price" id="price" value="{{ old('price', $event->price) }}" class="w-full border-gray-300 rounded-md p-2" readonly>
+                            <span class="text-gray-500 text-sm">Por haver inscritos pagos/pagando, não é permitido mudar o preço</span>
+                        @else
+                            <input type="number" step="0.01" name="price" id="price" value="{{ old('price', $event->price) }}" class="w-full border-gray-300 rounded-md p-2">
+                        @endif
                     </div>
 
                     <div class="flex justify-end">
