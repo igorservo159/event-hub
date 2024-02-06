@@ -6,10 +6,12 @@ use App\Models\Event;
 use App\Models\Refund;
 use App\Models\Registration;
 use Carbon\Carbon;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Gate;
+
 
 class RefundController extends Controller
 {
@@ -39,21 +41,13 @@ class RefundController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request, Registration $registration)
     {
         $user = Auth::user();
         /** @var \App\Models\User $user */
-        if ($user->id !== $registration->user->id) {
+        if (Gate::denies('store-refund', $registration)) {
             return redirect()->route('dashboard')
                 ->with('error', 'Você não tem permissão de pedir reembolso para esta inscrição.');
         }
@@ -99,33 +93,9 @@ class RefundController extends Controller
         return view('refunds.show', compact('refund'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Refund $refund)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Refund $refund)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Refund $refund)
-    {
-        //
-    }
-
     public function listRefunds(Request $request, Event $event)
     {
-        if (Auth::user()->id !== $event->owner->id) {
+        if (Gate::denies('list-refund', $event)) {
             return redirect()->route('dashboard')
                 ->with('error', 'Você não tem permissão para acessar estas inscrições.');
         }
@@ -154,7 +124,7 @@ class RefundController extends Controller
     {
         $user = Auth::user();
         /** @var \App\Models\User $user */
-        if ($user->id !== $registration->user->id) {
+        if (Gate::denies('askForRefund-refund', $registration)) {
             return redirect()->route('dashboard')
                 ->with('error', 'Você não tem permissão de pedir reembolso para esta inscrição.');
         }
@@ -179,18 +149,28 @@ class RefundController extends Controller
 
     public function denyRefund(Refund $refund)
     {
-        // Adicione aqui a lógica necessária para negar o reembolso, por exemplo, alterar o status para "negada".
+        try{
+            $this->authorize('ApproveOrDenyRefund', $refund);
+        }catch(AuthorizationException $e){
+            return redirect()->route('refunds.show', $refund)
+                ->with('error', 'Você não tem permissão de negar/aprovar esse pedido');
+        }
+
         $refund->update(['decisao' => 'negada']);
         $refund->payment->registration->update(['status' => 'pago']);
 
         return Redirect::back()->with('success', 'Pedido de reembolso negado com sucesso!');
     }
 
-    /**
-     * Approve the specified refund.
-     */
     public function approveRefund(Refund $refund)
     {
+        try{
+            $this->authorize('ApproveOrDenyRefund', $refund);
+        }catch(AuthorizationException $e){
+            return redirect()->route('refunds.show', $refund)
+                ->with('error', 'Você não tem permissão de negar/aprovar esse pedido');
+        }
+        
         $refund->update(['decisao' => 'aprovada']);
         $refund->payment->registration->update(['status' => 'cancelada']);
 

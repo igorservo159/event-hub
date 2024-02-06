@@ -79,7 +79,7 @@ Route::resource('registrations', RegistrationController::class)
     ->middleware(['auth', 'verified']);
 
 Route::resource('payments', PaymentController::class)
-    ->only(['index','destroy'])
+    ->only(['index',])
     ->middleware(['auth', 'verified']);
 
 Route::resource('refunds', RefundController::class)

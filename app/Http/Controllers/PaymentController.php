@@ -7,6 +7,8 @@ use App\Models\Registration;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+
 
 class PaymentController extends Controller
 {
@@ -40,7 +42,7 @@ class PaymentController extends Controller
      */
     public function create(Registration $registration)
     {
-        if (Auth::user()->id !== $registration->user_id) {
+        if (Gate::denies('create-payment', $registration)) {
             return redirect()->route('registrations.index')
                 ->with('error', 'Você não tem permissão para realizar o pagamento desta inscrição.');
         }
@@ -56,6 +58,11 @@ class PaymentController extends Controller
     public function store(Request $request, Registration $registration): RedirectResponse
     {
         $user = Auth::user();
+
+        if (Gate::denies('create-payment', $registration)) {
+            return redirect()->route('registrations.index')
+                ->with('error', 'Você não tem permissão para realizar o pagamento desta inscrição.');
+        }
 
         $validatedData = $request->validate([
             'value' => 'required|numeric',
@@ -81,50 +88,15 @@ class PaymentController extends Controller
 
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Payment $payment)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Payment $payment)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Payment $payment)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Payment $payment)
-    {
-        $payment->delete();
-
-        return redirect()->route('payments.index')
-            ->with('success', 'Pagamento excluído com sucesso!');
-    }
-
     public function approvePayment(Registration $registration): RedirectResponse
     {
         $event = $registration->event;
 
-        if (Auth::user()->id !== $registration->event->owner->id) {
+        if (Gate::denies('approve-payment', $registration)) {
             return redirect()->route('dashboard')
                 ->with('error', 'Você não tem permissão para aprovar o pagamento desta inscrição.');
         }
-
+        
         if ($registration->status !== 'processando pagamento') {
             return redirect()->route('registrations.listRegisters', $event)
                 ->with('error', 'Esta inscrição não está aguardando pagamento.');

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\Registration;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -58,39 +60,40 @@ class RegistrationController extends Controller
 
     public function destroy(Registration $registration): RedirectResponse
     {
-        if(Auth::user()->id === $registration->user_id) {
-            if($registration->status == 'pendente'){
-                $event = $registration->event;
-                $registration->update(['status' => 'cancelada']);
-
-                return redirect()->route('events.show', $event)
-                    ->with('success', 'Inscrição removida com sucesso.');
-            }
-            elseif($registration->status == 'processando pagamento'){
-                $payment = $registration->payments();
-                $payment->delete();
-                $event = $registration->event;
-                $registration->update(['status' => 'cancelada']);
-
-                return redirect()->route('events.show', $event)
-                    ->with('success', 'Inscrição removida com sucesso.');
-            }
-            elseif($registration->status == 'pago'){
-                return redirect()->route('refunds.askForRefund', $registration);
-            }
-        } else {
+        try {
+            $this->authorize('cancel', $registration);
+        } catch (AuthorizationException $e) {
             return redirect()->route('registrations.index')
-                ->with('error', 'Você não tem permissão para remover esta inscrição.');
+                ->with('error', 'Você não tem permissão para cancelar esta inscrição.');
         }
+
+        if($registration->status == 'pendente'){
+            $event = $registration->event;
+            $registration->update(['status' => 'cancelada']);
+
+            return redirect()->route('events.show', $event)
+                ->with('success', 'Inscrição cancelada com sucesso.');
+        }
+        elseif($registration->status == 'processando pagamento'){
+            $payment = $registration->payments();
+            $payment->delete();
+            $event = $registration->event;
+            $registration->update(['status' => 'cancelada']);
+
+            return redirect()->route('events.show', $event)
+                ->with('success', 'Inscrição cancelada com sucesso.');
+        }
+        elseif($registration->status == 'pago'){
+            return redirect()->route('refunds.askForRefund', $registration);
+        }
+        
     }
 
     public function listRegisters(Request $request, Event $event)
     {
-        if (Auth::user()->id !== $event->owner->id) {
-            return redirect()->route('dashboard')
-                ->with('error', 'Você não tem permissão para acessar estas inscrições.');
+        if (Gate::denies('list-registers', $event)) {
+            return redirect()->route('dashboard')->with('error', 'Você não tem permissão para acessar estas inscrições.');
         }
-
         $nameFilter = $request->input('user_name');
         $statusFilter = $request->input('status_filter');
 
@@ -115,6 +118,19 @@ class RegistrationController extends Controller
 
         if ($registrationsQuery->count()){
             $registrations = $registrationsQuery->get();
+        }
+
+        $sucessoSessao = session('success');
+        $erroSessao = session('error');
+
+        if($sucessoSessao){
+            return view('organizer.registrations', compact('event', 'registrations', 'paidCount', 'pendingCount', 'processingCount', 'waitingCount', 'cancelCount'))
+                ->with('success', $sucessoSessao);
+        }
+
+        if($erroSessao){
+            return view('organizer.registrations', compact('event', 'registrations', 'paidCount', 'pendingCount', 'processingCount', 'waitingCount', 'cancelCount'))
+                ->with('success', $erroSessao);
         }
 
         return view('organizer.registrations', compact('event', 'registrations', 'paidCount', 'pendingCount', 'processingCount', 'waitingCount', 'cancelCount'));
