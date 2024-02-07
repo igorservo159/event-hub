@@ -9,7 +9,7 @@ class RefundPolicy
 {
     public function ApproveOrDenyRefund(User $user, Refund $refund)
     {
-        return $user->id === $refund->payment->registration->event->owner->id;
+        return $user->isAdmin() || $user->id === $refund->payment->registration->event->owner->id;
     }
 
 }

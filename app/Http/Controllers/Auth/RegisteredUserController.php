@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\PermissionRequest;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
@@ -37,12 +38,20 @@ class RegisteredUserController extends Controller
             'type' => ['required', 'in:inscrito,organizador,administrador'],
         ]);
 
+        
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'type' => $request->type,
         ]);
+        
+        if ($request->type == 'organizador' || $request->type == 'administrador') {
+            PermissionRequest::create([
+                'user_id' => $user->id,
+                'requested_type' => $request->type,
+                'status' => 'pendente',
+            ]);
+        }
 
         event(new Registered($user));
 
@@ -50,4 +59,5 @@ class RegisteredUserController extends Controller
 
         return redirect(RouteServiceProvider::HOME);
     }
+
 }

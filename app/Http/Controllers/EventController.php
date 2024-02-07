@@ -186,8 +186,12 @@ class EventController extends Controller
         $titleFilter = $request->input('title_filter');
         $dateFilter = $request->input('date_filter');
         $locationFilter = $request->input('location_filter');
-
-        $query = Event::where('owner_id', $user->id)->latest();
+        
+        if ($user->isAdmin()) {
+            $query = Event::query();
+        } else {
+            $query = Event::where('owner_id', $user->id)->latest();
+        }
 
         if ($titleFilter) {
             $query->where('title', 'like', '%' . $titleFilter . '%');

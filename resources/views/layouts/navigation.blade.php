@@ -12,26 +12,9 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-
                     <x-nav-link :href="route('events.index')" :active="request()->routeIs('events.index')">
                         {{ __('Eventos abertos') }}
                     </x-nav-link>
-                    
-                    @if(Auth::check() && Auth::user()->isOrganizador())
-                        <x-nav-link :href="route('events.create')" :active="request()->routeIs('events.create')">
-                            {{ __('Criar evento') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('events.myEvents')" :active="request()->routeIs('events.myEvents')">
-                            {{ __('Meus eventos') }}
-                        </x-nav-link>
-                    @else
-                        <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
-                            {{ __('Quero criar eventos') }}
-                        </x-nav-link>
-                    @endif
 
                     <x-nav-link :href="route('registrations.index')" :active="request()->routeIs('registrations.index')">
                         {{ __('Minhas inscrições') }}
@@ -42,8 +25,40 @@
                     </x-nav-link>
 
                     <x-nav-link :href="route('refunds.index')" :active="request()->routeIs('refunds.index')">
-                        {{ __('Meus Pedidos de Reembolso') }}
+                        {{ __('Meus pedidos de reembolso') }}
                     </x-nav-link>
+
+                    @if(Auth::check() && Auth::user()->isOrganizador())
+
+                        <x-nav-link :href="route('events.create')" :active="request()->routeIs('events.create')">
+                            {{ __('Criar evento') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('events.myEvents')" :active="request()->routeIs('events.myEvents')">
+                            {{ __('Meus eventos') }}
+                        </x-nav-link>
+
+                    @elseif(Auth::check() && Auth::user()->isAdmin())
+
+                        <x-nav-link :href="route('events.create')" :active="request()->routeIs('events.create')">
+                            {{ __('Criar evento') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('events.myEvents')" :active="request()->routeIs('events.myEvents')">
+                            {{ __('Gerenciar eventos') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('permissionRequests.index')" :active="request()->routeIs('permissionRequests.index')">
+                            {{ __('Pedidos de alteração de conta') }}
+                        </x-nav-link>
+
+                    @else
+
+                        <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
+                            {{ __('Quero criar eventos') }}
+                        </x-nav-link>
+
+                    @endif
                 </div>
             </div>
 
@@ -96,26 +111,9 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
-
             <x-responsive-nav-link :href="route('events.index')" :active="request()->routeIs('events.index')">
                 {{ __('Eventos abertos') }}
             </x-responsive-nav-link>
-
-            @if(Auth::check() && Auth::user()->isOrganizador())
-                <x-responsive-nav-link :href="route('events.create')" :active="request()->routeIs('events.create')">
-                    {{ __('Criar evento') }}
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('events.myEvents')" :active="request()->routeIs('events.myEvents')">
-                    {{ __('Meus eventos') }}
-                </x-responsive-nav-link>
-            @else
-                <x-responsive-nav-link :href="route('events.index')" :active="request()->routeIs('events.index')">
-                    {{ __('Quero criar eventos') }}
-                </x-responsive-nav-link>
-            @endif
 
             <x-responsive-nav-link :href="route('registrations.index')" :active="request()->routeIs('registrations.index')">
                 {{ __('Minhas inscrições') }}
@@ -126,8 +124,40 @@
             </x-responsive-nav-link>
 
             <x-responsive-nav-link :href="route('refunds.index')" :active="request()->routeIs('refunds.index')">
-                {{ __('Meus Pedidos de Reembolso') }}
+                {{ __('Meus pedidos de reembolso') }}
             </x-responsive-nav-link>
+
+            @if(Auth::check() && Auth::user()->isOrganizador())
+
+                <x-responsive-nav-link :href="route('events.create')" :active="request()->routeIs('events.create')">
+                    {{ __('Criar evento') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('events.myEvents')" :active="request()->routeIs('events.myEvents')">
+                    {{ __('Meus eventos') }}
+                </x-responsive-nav-link>
+
+            @elseif(Auth::check() && Auth::user()->isAdmin())
+
+                <x-responsive-nav-link :href="route('events.create')" :active="request()->routeIs('events.create')">
+                    {{ __('Criar evento') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('events.myEvents')" :active="request()->routeIs('events.myEvents')">
+                    {{ __('Gerenciar eventos') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('permissionRequests.index')" :active="request()->routeIs('permissionRequests.index')">
+                    {{ __('Pedidos de alteração de conta') }}
+                </x-responsive-nav-link>
+
+            @else
+
+                <x-responsive-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
+                    {{ __('Quero criar eventos') }}
+                </x-responsive-nav-link>
+
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

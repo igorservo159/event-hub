@@ -3,6 +3,7 @@
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PermissionRequestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RefundController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,18 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('/permissionRequests/index', [PermissionRequestController::class, 'index'])
+    ->name('permissionRequests.index')
+    ->middleware(['auth', 'verified']);
+
+Route::post('/permissionRequests/approve/{permissionrequest}', [PermissionRequestController::class, 'approve'])
+    ->name('permissionRequests.approve')
+    ->middleware(['auth', 'verified']);
+
+Route::post('/permissionRequests/deny/{permissionrequest}', [PermissionRequestController::class, 'deny'])
+    ->name('permissionRequests.deny')
+    ->middleware(['auth', 'verified']);
+
 Route::get('/events/myEvents', [EventController::class, 'myEvents'])
     ->name('events.myEvents')
     ->middleware(['auth', 'verified']);
@@ -48,6 +61,10 @@ Route::post('/payments/{registration}', [PaymentController::class, 'store'])
 
 Route::post('/payments/approvePayment/{registration}', [PaymentController::class, 'approvePayment'])
     ->name('payments.approvePayment')
+    ->middleware(['auth', 'verified']);
+
+Route::post('/payments/denyPayment/{registration}', [PaymentController::class, 'denyPayment'])
+    ->name('payments.denyPayment')
     ->middleware(['auth', 'verified']);
 
 Route::post('/refunds/{registration}', [RefundController::class, 'store'])

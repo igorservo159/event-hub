@@ -63,6 +63,14 @@ class PaymentController extends Controller
             return redirect()->route('registrations.index')
                 ->with('error', 'Você não tem permissão para realizar o pagamento desta inscrição.');
         }
+        
+        /** @var \App\Models\User $user */
+        if ($user->payments()->whereHas('registration', function ($query) {
+            $query->where('status', 'processando pagamento');
+        })->exists()) {
+            return redirect()->route('registrations.index')
+                ->with('error', 'Você já possui um pagamento em processo para esta inscrição.');
+        }
 
         $validatedData = $request->validate([
             'value' => 'required|numeric',
@@ -111,5 +119,27 @@ class PaymentController extends Controller
             ->with('success', 'Pagamento aprovado com sucesso!');
     }
 
-    
+    public function denyPayment(Registration $registration): RedirectResponse
+    {
+        $event = $registration->event;
+
+        if (Gate::denies('approve-payment', $registration)) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Você não tem permissão para aprovar o pagamento desta inscrição.');
+        }
+        
+        if ($registration->status !== 'processando pagamento') {
+            return redirect()->route('registrations.listRegisters', $event)
+                ->with('error', 'Esta inscrição não está aguardando pagamento.');
+        }
+        
+        $payment = $registration->payments()->where('status', 'processando')->first();
+        if ($payment) {
+            $payment->update(['status' => 'negado']);
+            $registration->update(['status' => 'pendente']);
+        }
+        return redirect()->route('registrations.listRegisters', $event)
+            ->with('success', 'Pagamento negado com sucesso!');
+    }
+
 }

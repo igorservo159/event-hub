@@ -9,7 +9,7 @@ class EventPolicy
 {
     public function create(User $user)
     {
-        return $user->isOrganizador();
+        return $user->isOrganizador() || $user->isAdmin();
     }
 
     public function myEvents(User $user)
@@ -19,7 +19,7 @@ class EventPolicy
 
     public function update(User $user, Event $event)
     {
-        return $user->isOrganizador() && $user->id === $event->owner->id;
+        return $user->isAdmin() || ($user->isOrganizador() && $user->id === $event->owner->id);
     }
 
     public function delete(User $user, Event $event)

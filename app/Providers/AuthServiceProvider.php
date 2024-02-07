@@ -34,7 +34,7 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Gate::define('list-registers', function ($user, $event) {
-            return $user->id === $event->owner->id;
+            return $user->isAdmin() || $user->id === $event->owner->id;
         });
 
         Gate::define('create-payment', function ($user, $registration) {
@@ -42,7 +42,7 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         Gate::define('approve-payment', function ($user, $registration) {
-            return $user->id === $registration->event->owner->id;
+            return $user->isAdmin() || $user->id === $registration->event->owner->id;
         });
 
         Gate::define('store-refund', function ($user, $registration) {
@@ -50,7 +50,7 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         Gate::define('list-refund', function ($user, $event) {
-            return $user->id === $event->owner->id;
+            return $user->isAdmin() || $user->id === $event->owner->id;
         });
 
         Gate::define('askForRefund-refund', function ($user, $registration) {

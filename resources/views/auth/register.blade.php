@@ -14,7 +14,7 @@
             <label for="type" class="block text-sm font-medium text-gray-700">Objetivo</label>
             <select name="type" id="type" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 <option value="inscrito">Inscrever-se em eventos</option>
-                <option value="organizador">Organizador eventos</option>
+                <option value="organizador">Organizar eventos</option>
                 <option value="administrador">Sou administrador</option>
             </select>
         </div>

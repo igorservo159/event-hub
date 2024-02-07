@@ -8,7 +8,7 @@
     <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
         @if(session('error') || session('success'))
             <div class="mb-4">
-                <div class="bg-{{ session('error') ? 'red' : 'green' }}-100 border border-{{ session('error') ? 'red' : 'green' }}-400 text-{{ session('error') ? 'red' : 'green' }}-700 px-4 py-3 rounded relative" role="alert">
+                <div class="bg-{{ session('error') ? 'red' : 'green' }}-500 border border-{{ session('error') ? 'red' : 'green' }}-400 text-{{ session('error') ? 'red' : 'green' }}-700 px-4 py-3 rounded relative" role="alert">
                     <strong class="font-bold">{{ session('error') ? 'Erro!' : 'Sucesso!' }}</strong>
                     <span class="block sm:inline">{{ session('error') ?: session('success') }}</span>
                 </div>

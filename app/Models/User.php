@@ -45,6 +45,14 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    public function permissionRequests(): HasMany {
+        return $this->hasMany(PermissionRequest::class, 'user_id', 'id');
+    }
+
+    public function createdEvents(): HasMany {
+        return $this->hasMany(Event::class, 'owner_id', 'id');
+    }
+
     public function registrations(): HasMany {
         return $this->hasMany(Registration::class, 'user_id', 'id');
     }
@@ -57,9 +65,6 @@ class User extends Authenticatable
         return $this->hasMany(Refund::class, 'user_id', 'id');
     }
 
-    public function createdEvents(): HasMany {
-        return $this->hasMany(Event::class, 'owner_id', 'id');
-    }
 
     public function isEnrolled(Event $event): bool 
     {
@@ -86,5 +91,10 @@ class User extends Authenticatable
             ->where('event_id', $event->id)
             ->whereNotIn('status', ['cancelada'])
             ->exists();
+    }
+
+    public function hasPendingPermissionRequest()
+    {
+        return $this->permissionRequests()->where('status', 'pendente')->exists();
     }
 }

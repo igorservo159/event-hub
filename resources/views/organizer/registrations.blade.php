@@ -9,7 +9,7 @@
         <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
             @if(session('error') || session('success'))
                 <div class="mb-4">
-                    <div class="bg-{{ session('error') ? 'red' : 'green' }}-100 border border-{{ session('error') ? 'red' : 'green' }}-400 text-{{ session('error') ? 'red' : 'green' }}-700 px-4 py-3 rounded relative" role="alert">
+                    <div class="bg-{{ session('error') ? 'red' : 'green' }}-500 border border-{{ session('error') ? 'red' : 'green' }}-400 text-{{ session('error') ? 'red' : 'green' }}-700 px-4 py-3 rounded relative" role="alert">
                         <strong class="font-bold">{{ session('error') ? 'Erro!' : 'Sucesso!' }}</strong>
                         <span class="block sm:inline">{{ session('error') ?: session('success') }}</span>
                     </div>
@@ -76,6 +76,10 @@
                                         <form action="{{ route('payments.approvePayment', $registration) }}" method="post">
                                             @csrf
                                             <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Aprovar Pagamento</button>
+                                        </form>
+                                        <form action="{{ route('payments.denyPayment', $registration) }}" method="post">
+                                            @csrf
+                                            <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-md">Negar Pagamento</button>
                                         </form>
                                     @endif
                                     @if ($registration->status === 'esperando por reembolso')

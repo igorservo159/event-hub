@@ -22,6 +22,11 @@
             @if (isset($header))
                 <header class="bg-white shadow">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        @if(Auth::check() && Auth::user()->permissionRequests()->where('status', 'pendente')->exists())
+                            <div class="bg-yellow-100 border-l-4 border-yellow-400 p-4 mb-4">
+                                <p class="font-bold">Seu pedido de conta está em análise.</p>
+                            </div>
+                        @endif
                         {{ $header }}
                     </div>
                 </header>
