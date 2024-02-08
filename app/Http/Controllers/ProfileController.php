@@ -44,6 +44,18 @@ class ProfileController extends Controller
                     'status' => 'pendente',
                 ]);
             }
+
+            elseif ($user->type === 'organizador' && $userData['type'] === 'administrador') {
+                PermissionRequest::create([
+                    'user_id' => $user->id,
+                    'requested_type' => $userData['type'],
+                    'status' => 'pendente',
+                ]);
+            }
+
+            elseif ($user->type === 'organizador' && $userData['type'] === 'inscrito') {
+                $user->type = $userData['type'];
+            }
         }
 
         $userData['type'] = $user->type;
