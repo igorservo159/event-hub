@@ -48,8 +48,15 @@ class RegistrationController extends Controller
 
         /** @var \App\Models\User $user */
         if (!$user->hasActiveEnrollment($event) && $event->hasAvailableSlots()) {
-            $event->registrations()->create(['user_id' => $user->id]);
+            if($user->id === $event->owner->id){
+                $event->registrations()->create(['user_id' => $user->id, 'status' => 'staff']);
 
+                return redirect()->route('events.show', $event)
+                ->with('success', 'Inscrição de staff realizada com sucesso! Não é necessário pagamento!');
+            }
+            
+            $event->registrations()->create(['user_id' => $user->id]);
+            
             return redirect()->route('events.show', $event)
                 ->with('success', 'Inscrição realizada com sucesso!');
         } else {
@@ -67,7 +74,7 @@ class RegistrationController extends Controller
                 ->with('error', 'Você não tem permissão para cancelar esta inscrição.');
         }
 
-        if($registration->status == 'pendente'){
+        if($registration->status == 'pendente' || $registration->status == 'staff'){
             $event = $registration->event;
             $registration->update(['status' => 'cancelada']);
 
@@ -115,7 +122,9 @@ class RegistrationController extends Controller
         $processingCount = $registrations->where('status', 'processando pagamento')->count();
         $waitingCount = $registrations->where('status', 'esperando por reembolso')->count();
         $cancelCount = $registrations->where('status', 'cancelada')->count();
-
+        $staffCount = $registrations->where('status', 'staff')->count();
+        $totalAmount = number_format($paidCount * $event->price, 2, ',', '.');
+        
         if ($registrationsQuery->count()){
             $registrations = $registrationsQuery->get();
         }
@@ -124,15 +133,15 @@ class RegistrationController extends Controller
         $erroSessao = session('error');
 
         if($sucessoSessao){
-            return view('organizer.registrations', compact('event', 'registrations', 'paidCount', 'pendingCount', 'processingCount', 'waitingCount', 'cancelCount'))
+            return view('organizer.registrations', compact('event', 'registrations', 'paidCount', 'pendingCount', 'processingCount', 'waitingCount', 'cancelCount', 'staffCount', 'totalAmount'))
                 ->with('success', $sucessoSessao);
         }
 
         if($erroSessao){
-            return view('organizer.registrations', compact('event', 'registrations', 'paidCount', 'pendingCount', 'processingCount', 'waitingCount', 'cancelCount'))
+            return view('organizer.registrations', compact('event', 'registrations', 'paidCount', 'pendingCount', 'processingCount', 'waitingCount', 'cancelCount', 'staffCount', 'totalAmount'))
                 ->with('success', $erroSessao);
         }
 
-        return view('organizer.registrations', compact('event', 'registrations', 'paidCount', 'pendingCount', 'processingCount', 'waitingCount', 'cancelCount'));
+        return view('organizer.registrations', compact('event', 'registrations', 'paidCount', 'pendingCount', 'processingCount', 'waitingCount', 'cancelCount', 'staffCount', 'totalAmount'));
     }
 }

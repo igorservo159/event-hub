@@ -12,7 +12,8 @@ class RegistrationPolicy
     {
         return $user->isAdmin() || 
                 ($user->id === $registration->user_id &&
-                ($registration->status == 'pendente' 
+                ($registration->status == 'pendente'
+                || $registration->status == 'staff' 
                 || $registration->status == 'processando pagamento'
                 || $registration->status == 'pago'));
     }

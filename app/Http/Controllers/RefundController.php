@@ -128,22 +128,26 @@ class RefundController extends Controller
             return redirect()->route('dashboard')
                 ->with('error', 'Você não tem permissão de pedir reembolso para esta inscrição.');
         }
-        if($registration->status == 'pago'){
-            $diasRestantes = Carbon::parse($registration->event->data)->diffInDays(Carbon::now());
-            if($diasRestantes >= 15){
-                $payment = $registration->payments()->where('status', 'finalizado')->first();
-                if($payment){
-                    return view('refunds.create', compact('registration', 'payment'));
-                }
-                else{
-                    return redirect()->route('registrations.index')
-                        ->with('error', 'Não foi encontrado um pagamento finalizado para esta inscrição.');
-                }
+
+        if($registration->status !== 'pago'){
+            return redirect()->route('registrations.index')
+                ->with('error', 'Essa inscrição não possui pagamento confirmado!');
+        }
+        
+        $diasRestantes = Carbon::parse($registration->event->data)->diffInDays(Carbon::now());
+        if($diasRestantes >= 15){
+            $payment = $registration->payments()->where('status', 'finalizado')->first();
+            if($payment){
+                return view('refunds.create', compact('registration', 'payment'));
             }
             else{
                 return redirect()->route('registrations.index')
-                    ->with('error', 'Já passou do prazo de reembolso');
+                    ->with('error', 'Não foi encontrado um pagamento finalizado para esta inscrição.');
             }
+        }
+        else{
+            return redirect()->route('registrations.index')
+                ->with('error', 'Já passou do prazo de reembolso');
         }
     }
 

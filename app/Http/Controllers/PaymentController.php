@@ -47,6 +47,20 @@ class PaymentController extends Controller
                 ->with('error', 'Você não tem permissão para realizar o pagamento desta inscrição.');
         }
 
+        $payments = Payment::where('registration_id', $registration->id)
+                   ->whereNot('status', 'negado')
+                   ->get();
+
+        
+        if ($payments->count() > 0) {
+            return redirect()->route('registrations.index')
+                ->with('error', 'Você já possui um pagamento em processo para esta inscrição.');
+        } elseif($registration->status !== 'pendente'){
+            return redirect()->route('registrations.index')
+                ->with('error', 'Esta inscrição não pode receber pagamentos!');
+        }
+
+
         $eventPrice = $registration->event->price;
 
         return view('payments.create', compact('registration', 'eventPrice'));
@@ -64,12 +78,16 @@ class PaymentController extends Controller
                 ->with('error', 'Você não tem permissão para realizar o pagamento desta inscrição.');
         }
         
-        /** @var \App\Models\User $user */
-        if ($user->payments()->whereHas('registration', function ($query) {
-            $query->where('status', 'processando pagamento');
-        })->exists()) {
+        $payments = Payment::where('registration_id', $registration->id)
+                   ->whereNot('status', 'negado')
+                   ->get();
+
+        if ($payments->count() > 0) {
             return redirect()->route('registrations.index')
                 ->with('error', 'Você já possui um pagamento em processo para esta inscrição.');
+        } elseif($registration->status !== 'pendente'){
+            return redirect()->route('registrations.index')
+                ->with('error', 'Esta inscrição não pode receber pagamentos!');
         }
 
         $validatedData = $request->validate([

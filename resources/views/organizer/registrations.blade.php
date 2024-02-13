@@ -21,10 +21,12 @@
                     <div>
                         <p>{{ $event->registrations->where('status', '!=', 'cancelada')->count() }}/{{ $event->capacity }} vagas preenchidas</p>
                         <p>{{ $paidCount }} pessoas pagaram</p>
+                        <p>{{ $staffCount }} staffs confirmados</p>
                         <p>{{ $pendingCount }} pessoas com pagamento pendente</p>
                         <p>{{ $processingCount }} pessoas com pagamento em análise</p>
                         <p>{{ $waitingCount }} pessoas esperando por reembolso</p>
                         <p>{{ $cancelCount }} inscrições canceladas</p>
+                        <p>Total levantado: R$ {{ $totalAmount }}</p>
                     </div>
                     <div>
                         <a class="hover:underline" href="{{ route('refunds.listRefunds', $event) }}">Checar Pedidos de Reembolsos</a>

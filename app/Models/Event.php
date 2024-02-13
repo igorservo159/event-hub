@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\EventCompleted;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -36,5 +37,17 @@ class Event extends Model
     public function hasAvailableSlots(): bool
     {
         return $this->registrations()->where('status', '!=', 'cancelada')->count() < $this->capacity;
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($event) {
+            if ($event->registrations()->where('status', '!=', 'cancelada')
+            ->count() >= $event->capacity) {
+                event(new EventCompleted($event));
+            }
+        });
     }
 }
