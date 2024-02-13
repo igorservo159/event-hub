@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Foundation\Auth\User;
 
 class Payment extends Model
 {
@@ -22,9 +21,9 @@ class Payment extends Model
         'user_id',
     ];
 
-    /*protected $dispatchesEvents = [
+    protected $dispatchesEvents = [
         'created' => PaymentCreated::class,
-    ];*/
+    ];
 
     public function registration(): BelongsTo {
         return $this->belongsTo(Registration::class, 'registration_id', 'id');
@@ -38,7 +37,7 @@ class Payment extends Model
         return $this->hasMany(Refund::class, 'payment_id', 'id');
     }
 
-    /*public static function boot()
+    public static function boot()
     {
         parent::boot();
 
@@ -51,5 +50,5 @@ class Payment extends Model
                 event(new PaymentStatusChanged($payment, $newStatus));
             }
         });
-    }*/
+    }
 }
