@@ -46,11 +46,7 @@ class ProfileController extends Controller
             }
 
             elseif ($user->type === 'organizador' && $userData['type'] === 'administrador') {
-                PermissionRequest::create([
-                    'user_id' => $user->id,
-                    'requested_type' => $userData['type'],
-                    'status' => 'pendente',
-                ]);
+                return redirect()->route('dashboard')->with('error', 'Contas organizadoras não podem tornar-se administradoras!');
             }
 
             elseif ($user->type === 'organizador' && $userData['type'] === 'inscrito') {
