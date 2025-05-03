@@ -37,7 +37,7 @@ services:
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
-    command: ["npm", "run", "dev", "--", "--host"]
+      - /var/www/html/node_modules
     ports:
       - "5173:5173"
     networks:
