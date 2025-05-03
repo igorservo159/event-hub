@@ -73,25 +73,27 @@ Este projeto é puramente educacional. O objetivo principal foi estudar e aplica
 * Integração com Blade e rotas seguras
 
 ## 🧪 Como Rodar Localmente
+Você só precisa ter o Docker instalado. Todo o ambiente já está configurado via Docker Compose.
+
 ```bash
 # Clone o repositório
 git clone https://github.com/seu-usuario/event-hub.git
 cd event-hub
 
-# Instale as dependências
-composer install
-
-# Configure o .env
+# Copie o arquivo de variáveis de ambiente
 cp .env.example .env
-php artisan key:generate
 
-# Configure o banco de dados MariaDB no .env
-# E rode as migrations
-php artisan migrate
+# Suba os containers
+sudo docker compose up -d
 
-# Rode o servidor de desenvolvimento
-php artisan serve
+# Gere a chave da aplicação
+sudo docker exec -it laravel-app php artisan key:generate
+
+# Rode as migrations (e seeders, se quiser)
+sudo docker exec -it laravel-app php artisan migrate --seed
 ```
+
+Acesse a aplicação em: http://localhost:8000
 
 ## 🤝 Contribuição
 Este é um projeto pessoal e educacional, mas se quiser sugerir algo, sinta-se à vontade para abrir uma issue ou pull request!
