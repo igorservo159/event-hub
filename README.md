@@ -80,18 +80,9 @@ Você só precisa ter o Docker instalado. Todo o ambiente já está configurado 
 git clone https://github.com/igorservo159/event-hub.git
 cd event-hub
 
-# Copie o arquivo de variáveis de ambiente
-cp .env.example .env
-
 # Suba os containers
 sudo docker compose up -d
-
-# Gere a chave da aplicação
-sudo docker exec -it laravel-app php artisan key:generate
-
-# Rode as migrations (e seeders, se quiser)
-sudo docker exec -it laravel-app php artisan migrate --seed
-```
+``
 
 Acesse a aplicação em: http://localhost:8000
 
