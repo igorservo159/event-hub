@@ -85,7 +85,7 @@ cd event-hub
 
 # Suba os containers
 sudo docker compose up -d
-``
+```
 
 Acesse a aplicação em: http://localhost:8000
 
