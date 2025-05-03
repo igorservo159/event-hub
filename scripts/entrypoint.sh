@@ -13,11 +13,16 @@ done
 echo "✅ Banco disponível! Rodando composer..."
 composer install
 
-chown www-data:www-data .env
-chmod 644 .env
+if [ ! -f .env ]; then
+    echo "Arquivo .env não encontrado. Copiando .env.example para .env..."
+    cp .env.example .env
+fi
 
 echo "🔑 Gerando chave da aplicação..."
 php artisan key:generate
+
+chown www-data:www-data .env
+chmod 644 .env
 
 echo "🧩 Rodando migrations..."
 php artisan migrate
