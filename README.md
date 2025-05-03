@@ -77,7 +77,7 @@ Você só precisa ter o Docker instalado. Todo o ambiente já está configurado 
 
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/event-hub.git
+git clone https://github.com/igorservo159/event-hub.git
 cd event-hub
 
 # Copie o arquivo de variáveis de ambiente
