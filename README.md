@@ -80,6 +80,9 @@ Você só precisa ter o Docker instalado. Todo o ambiente já está configurado 
 git clone https://github.com/igorservo159/event-hub.git
 cd event-hub
 
+# Copie o .env de exemplo se ainda não existir
+[ -f .env ] || cp .env.example .env
+
 # Suba os containers
 sudo docker compose up -d
 ``
