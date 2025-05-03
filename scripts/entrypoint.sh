@@ -18,11 +18,16 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
+# ✅ Corrige permissões do .env
+chown www-data:www-data .env
+chmod 644 .env
+
 echo "🔑 Gerando chave da aplicação..."
 php artisan key:generate
 
-chown www-data:www-data .env
-chmod 644 .env
+# ✅ Corrige permissões necessárias para storage e cache
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
 
 echo "🧩 Rodando migrations..."
 php artisan migrate
